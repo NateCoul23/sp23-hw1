@@ -96,13 +96,47 @@ def GVD_path(
     pointers = {}
 
     # the length of the frontier array, update this variable at each step. 
-    frontier_size = [0]
+    frontier_size = [1]
+
+    goalFound = False
+
+    pointers[A] = [None, None]
 
     while len(frontier) > 0:
+        if mode == PathPlanMode.DFS:
+            poppedNode = frontier.pop(frontier_size - 1)
+            if poppedNode[0] == B[0] and poppedNode[1] == B[1]:
+                goalFound = True
+                break
+            frontier_size.append(len(frontier))
+            neighborNodes = neighbors(grid, poppedNode[0], poppedNode[1])
+            frontier.append(neighborNodes)
+            frontier_size.append(len(frontier))
+            for node in neighborNodes:
+                pointers[node] = poppedNode
+        else:
+            poppedNode = frontier.pop(0)
+            frontier_size.append(len(frontier))
+            neighborNodes = neighbors(grid, poppedNode[0], poppedNode[1])
+            frontier.append(neighborNodes)
+            frontier_size.append(len(frontier))
+            for node in neighborNodes:
+                pointers[node] = poppedNode
         # TODO:implement this
         pass
 
-    return None, None, None
+        if goalFound:
+            nodeSequence = []
+            nodeSequence.append(B)
+            parentNode = pointers[B]
+            while parentNode[0] != None and parentNode[1] != None:
+                nodeSequence.insert(0, parentNode)
+                parentNode = pointers[parentNode]
+        else:
+            nodeSequence = None
+
+
+    return nodeSequence, pointers, frontier_size
 
 
 def compute_path(
